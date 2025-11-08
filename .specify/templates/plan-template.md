@@ -17,11 +17,11 @@
   the iteration process.
 -->
 
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
+**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75, TypeScript 5.x or NEEDS CLARIFICATION]  
+**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM, React, Vite or NEEDS CLARIFICATION]  
+**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files, in-memory or N/A]  
+**Testing**: [Note: Zero Testing Policy may apply - see constitution. Otherwise: pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
+**Target Platform**: [e.g., Linux server, iOS 15+, WASM, web browser or NEEDS CLARIFICATION]
 **Project Type**: [single/web/mobile - determines source structure]  
 **Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
 **Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
@@ -31,7 +31,15 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+**Verification Required**:
+- [ ] Tech stack alignment verified (matches approved languages/frameworks)
+- [ ] Testing policy compliance confirmed (check if Zero Testing or TDD applies)
+- [ ] Architecture patterns align with modularity/simplicity principles
+- [ ] Security requirements addressed (e.g., API key management, input validation)
+- [ ] Performance targets documented (if applicable to constitution)
+- [ ] Accessibility requirements noted (if specified in constitution)
+
+[Additional gates determined based on constitution file - customize per project]
 
 ## Project Structure
 

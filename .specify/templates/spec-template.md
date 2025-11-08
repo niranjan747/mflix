@@ -8,14 +8,18 @@
 ## User Scenarios & Testing *(mandatory)*
 
 <!--
-  IMPORTANT: User stories should be PRIORITIZED as user journeys ordered by importance.
+  IMPORTANT: "Testing" in this section refers to ACCEPTANCE CRITERIA and USER VALIDATION,
+  not automated test code. If your project has a Zero Testing Policy (see constitution),
+  these scenarios are for MANUAL VERIFICATION and DOCUMENTATION ONLY.
+  
+  User stories should be PRIORITIZED as user journeys ordered by importance.
   Each user story/journey must be INDEPENDENTLY TESTABLE - meaning if you implement just ONE of them,
   you should still have a viable MVP (Minimum Viable Product) that delivers value.
   
   Assign priorities (P1, P2, P3, etc.) to each story, where P1 is the most critical.
   Think of each story as a standalone slice of functionality that can be:
   - Developed independently
-  - Tested independently
+  - Validated independently (manually or via automated tests, per constitution)
   - Deployed independently
   - Demonstrated to users independently
 -->
@@ -26,7 +30,7 @@
 
 **Why this priority**: [Explain the value and why it has this priority level]
 
-**Independent Test**: [Describe how this can be tested independently - e.g., "Can be fully tested by [specific action] and delivers [specific value]"]
+**Independent Validation**: [Describe how this can be validated independently - e.g., "Can be fully validated by [specific action] and delivers [specific value]". Note: If Zero Testing Policy applies, describe MANUAL verification steps.]
 
 **Acceptance Scenarios**:
 
@@ -41,7 +45,7 @@
 
 **Why this priority**: [Explain the value and why it has this priority level]
 
-**Independent Test**: [Describe how this can be tested independently]
+**Independent Validation**: [Describe how this can be validated independently]
 
 **Acceptance Scenarios**:
 
@@ -55,7 +59,7 @@
 
 **Why this priority**: [Explain the value and why it has this priority level]
 
-**Independent Test**: [Describe how this can be tested independently]
+**Independent Validation**: [Describe how this can be validated independently]
 
 **Acceptance Scenarios**:
 
