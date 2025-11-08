@@ -14,6 +14,11 @@ dist-ssr
 .env
 .env.*
 
+# Specification and workflow directories
+.specify/
+specs/
+.github/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
