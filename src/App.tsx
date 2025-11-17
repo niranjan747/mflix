@@ -6,12 +6,28 @@ import { useMovieSearch } from './hooks/useMovieSearch';
 import { useTheme } from './hooks/useTheme';
 import { Navbar } from './components/Navbar';
 import { SearchBar } from './components/SearchBar';
-import { LoadingSpinner } from './components/LoadingSpinner';
-import { MovieCard } from './components/MovieCard';
-import { ResultsGrid } from './components/ResultsGrid';
+import { DetailPanel } from './components/detail/DetailPanel';
+import { DetailSkeleton } from './components/detail/DetailSkeleton';
 
 function App() {
-  const { loading, movieData, error, searchMovie, searchMovieDetail } = useMovieSearch();
+  const {
+    detailState,
+    loading,
+    searchMovie,
+    searchMovieDetail,
+    clearDetail,
+  } = useMovieSearch();
+
+  const handleQueryLifecycle = (value: string) => {
+    if (value.length === 0) {
+      clearDetail();
+      return;
+    }
+
+    if (detailState.status !== 'idle') {
+      clearDetail();
+    }
+  };
   const { theme, toggleTheme } = useTheme();
 
   return (
@@ -31,44 +47,41 @@ function App() {
         {/* Search Bar with Autocomplete */}
         <SearchBar 
           onSearch={searchMovie} 
-          onSelectSuggestion={searchMovieDetail}
-          onQueryChange={() => {
-            // Clear movie data when user starts typing new query
-            // This will be handled by searchMovie and searchMovieDetail
-          }}
+          onSelectSuggestion={(suggestion) => searchMovieDetail(suggestion.imdbID, suggestion)}
+          onQueryChange={handleQueryLifecycle}
           disabled={loading} 
         />
 
-        {/* Loading State */}
-        {loading && (
+        {/* Detail States */}
+        <span className="sr-only" aria-live="polite">
+          {detailState.status === 'loading' && 'Loading movie details'}
+          {detailState.status === 'error' && detailState.errorMessage && `Error: ${detailState.errorMessage}`}
+        </span>
+
+        {detailState.status === 'loading' && (
           <div className="mt-8">
-            <LoadingSpinner />
+            <DetailSkeleton />
           </div>
         )}
 
-        {/* Error State */}
-        {error && !loading && (
-          <div className="mt-8 max-w-2xl mx-auto">
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 
-                            rounded-lg p-4 text-center">
+        {detailState.status === 'error' && detailState.errorMessage && (
+          <div className="mt-8 max-w-3xl mx-auto">
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 text-center">
               <p className="text-red-800 dark:text-red-200 font-medium">
-                {error}
+                {detailState.errorMessage}
               </p>
             </div>
           </div>
         )}
 
-        {/* Movie Result */}
-        {movieData && !loading && !error && (
+        {detailState.status === 'ready' && detailState.movie && (
           <div className="mt-8">
-            <ResultsGrid>
-              <MovieCard movie={movieData} />
-            </ResultsGrid>
+            <DetailPanel movie={detailState.movie} />
           </div>
         )}
 
         {/* Empty State - No search yet */}
-        {!loading && !error && !movieData && (
+        {detailState.status === 'idle' && !loading && (
           <div className="mt-16 text-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"

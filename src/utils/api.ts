@@ -1,11 +1,12 @@
 // OMDb API client with error handling and timeout
 // Based on contracts/omdb-api.md specification
 
-import type { Movie, BroadSearchResponse } from '../types/movie';
+import type { MovieDetail, BroadSearchResponse } from '../types/movie';
 
 const API_KEY = import.meta.env.VITE_OMDB_API_KEY;
 const BASE_URL = 'http://www.omdbapi.com/';
-const TIMEOUT_MS = 10000; // 10 seconds per spec
+export const OMDB_TIMEOUT_MS = 10000; // 10 seconds per spec
+const GENERIC_ERROR = 'Search hiccup—retry soon';
 
 /**
  * Search for a movie by title using OMDb API
@@ -13,7 +14,7 @@ const TIMEOUT_MS = 10000; // 10 seconds per spec
  * @returns Movie data if found
  * @throws Error with user-friendly message on failure
  */
-export async function searchMovie(query: string): Promise<Movie> {
+export async function searchMovie(query: string): Promise<MovieDetail> {
   const trimmedQuery = query.trim();
   
   if (!trimmedQuery) {
@@ -22,7 +23,7 @@ export async function searchMovie(query: string): Promise<Movie> {
 
   // AbortController for 10-second timeout
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  const timeoutId = setTimeout(() => controller.abort(), OMDB_TIMEOUT_MS);
 
   try {
     const url = `${BASE_URL}?apikey=${API_KEY}&t=${encodeURIComponent(trimmedQuery)}`;
@@ -34,10 +35,10 @@ export async function searchMovie(query: string): Promise<Movie> {
     if (!response.ok) {
       // Handle HTTP errors (401, 429, etc.)
       console.error(`HTTP error: ${response.status}`);
-      throw new Error('Search failed—check connection');
+      throw new Error(GENERIC_ERROR);
     }
 
-    const data: Movie = await response.json();
+    const data: MovieDetail = await response.json();
 
     // Check OMDb API response status
     if (data.Response === 'False') {
@@ -47,15 +48,15 @@ export async function searchMovie(query: string): Promise<Movie> {
       }
       if (data.Error?.toLowerCase().includes('invalid api key')) {
         console.error('Invalid OMDb API key');
-        throw new Error('Search failed—check connection');
+        throw new Error(GENERIC_ERROR);
       }
       if (data.Error?.toLowerCase().includes('request limit')) {
         console.error('OMDb API rate limit exceeded');
-        throw new Error('Search failed—check connection');
+        throw new Error(GENERIC_ERROR);
       }
       // Generic API error
       console.error('OMDb API error:', data.Error);
-      throw new Error('Search failed—check connection');
+      throw new Error(GENERIC_ERROR);
     }
 
     return data;
@@ -64,13 +65,13 @@ export async function searchMovie(query: string): Promise<Movie> {
     // Handle timeout
     if (err instanceof Error && err.name === 'AbortError') {
       console.error('API timeout after 10 seconds');
-      throw new Error('Search failed—check connection');
+      throw new Error(GENERIC_ERROR);
     }
     
     // Handle network failures
     if (err instanceof TypeError) {
       console.error('Network error:', err.message);
-      throw new Error('Search failed—check connection');
+      throw new Error(GENERIC_ERROR);
     }
 
     // Re-throw known errors
@@ -80,7 +81,7 @@ export async function searchMovie(query: string): Promise<Movie> {
 
     // Unknown error
     console.error('Unexpected error:', err);
-    throw new Error('Search failed—check connection');
+    throw new Error(GENERIC_ERROR);
 
   } finally {
     clearTimeout(timeoutId);
@@ -93,14 +94,14 @@ export async function searchMovie(query: string): Promise<Movie> {
  * @returns Movie data if found
  * @throws Error with user-friendly message on failure
  */
-export async function searchMovieByID(imdbID: string): Promise<Movie> {
+export async function searchMovieByID(imdbID: string): Promise<MovieDetail> {
   if (!imdbID) {
     throw new Error('Invalid movie ID');
   }
 
   // AbortController for 10-second timeout
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  const timeoutId = setTimeout(() => controller.abort(), OMDB_TIMEOUT_MS);
 
   try {
     const url = `${BASE_URL}?apikey=${API_KEY}&i=${encodeURIComponent(imdbID)}`;
@@ -111,14 +112,14 @@ export async function searchMovieByID(imdbID: string): Promise<Movie> {
 
     if (!response.ok) {
       console.error(`HTTP error: ${response.status}`);
-      throw new Error('Search hiccup—retry soon');
+      throw new Error(GENERIC_ERROR);
     }
 
-    const data: Movie = await response.json();
+    const data: MovieDetail = await response.json();
 
     if (data.Response === 'False') {
       console.error('OMDb API error:', data.Error);
-      throw new Error('Search hiccup—retry soon');
+      throw new Error(GENERIC_ERROR);
     }
 
     return data;
@@ -126,12 +127,12 @@ export async function searchMovieByID(imdbID: string): Promise<Movie> {
   } catch (err) {
     if (err instanceof Error && err.name === 'AbortError') {
       console.error('API timeout after 10 seconds');
-      throw new Error('Search hiccup—retry soon');
+      throw new Error(GENERIC_ERROR);
     }
     
     if (err instanceof TypeError) {
       console.error('Network error:', err.message);
-      throw new Error('Search hiccup—retry soon');
+      throw new Error(GENERIC_ERROR);
     }
 
     if (err instanceof Error) {
@@ -139,7 +140,7 @@ export async function searchMovieByID(imdbID: string): Promise<Movie> {
     }
 
     console.error('Unexpected error:', err);
-    throw new Error('Search hiccup—retry soon');
+    throw new Error(GENERIC_ERROR);
 
   } finally {
     clearTimeout(timeoutId);
@@ -162,7 +163,7 @@ export async function searchMovieBroad(query: string): Promise<BroadSearchRespon
 
   // AbortController for 10-second timeout
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  const timeoutId = setTimeout(() => controller.abort(), OMDB_TIMEOUT_MS);
 
   try {
     const url = `${BASE_URL}?apikey=${API_KEY}&s=${encodeURIComponent(trimmedQuery)}&type=movie`;
@@ -174,7 +175,7 @@ export async function searchMovieBroad(query: string): Promise<BroadSearchRespon
     if (!response.ok) {
       // Handle HTTP errors (401, 429, etc.)
       console.error(`HTTP error: ${response.status}`);
-      throw new Error('Search hiccup—retry soon');
+      throw new Error(GENERIC_ERROR);
     }
 
     const data: BroadSearchResponse = await response.json();
@@ -188,19 +189,19 @@ export async function searchMovieBroad(query: string): Promise<BroadSearchRespon
       }
       if (data.Error?.toLowerCase().includes('invalid api key')) {
         console.error('Invalid OMDb API key');
-        throw new Error('Search hiccup—retry soon');
+        throw new Error(GENERIC_ERROR);
       }
       if (data.Error?.toLowerCase().includes('request limit')) {
         console.error('Rate limit exceeded');
-        throw new Error('Search hiccup—retry soon');
+        throw new Error(GENERIC_ERROR);
       }
       if (data.Error?.toLowerCase().includes('too many results')) {
         console.error('Too many results');
-        throw new Error('Search hiccup—retry soon');
+        throw new Error(GENERIC_ERROR);
       }
       // Generic API error
       console.error('OMDb API error:', data.Error);
-      throw new Error('Search hiccup—retry soon');
+      throw new Error(GENERIC_ERROR);
     }
 
     return data;
@@ -209,13 +210,13 @@ export async function searchMovieBroad(query: string): Promise<BroadSearchRespon
     // Handle timeout
     if (err instanceof Error && err.name === 'AbortError') {
       console.error('API timeout after 10 seconds');
-      throw new Error('Search hiccup—retry soon');
+      throw new Error(GENERIC_ERROR);
     }
     
     // Handle network failures
     if (err instanceof TypeError) {
       console.error('Network error:', err.message);
-      throw new Error('Search hiccup—retry soon');
+      throw new Error(GENERIC_ERROR);
     }
 
     // Re-throw known errors
@@ -225,7 +226,7 @@ export async function searchMovieBroad(query: string): Promise<BroadSearchRespon
 
     // Unknown error
     console.error('Unexpected error:', err);
-    throw new Error('Search hiccup—retry soon');
+    throw new Error(GENERIC_ERROR);
 
   } finally {
     clearTimeout(timeoutId);

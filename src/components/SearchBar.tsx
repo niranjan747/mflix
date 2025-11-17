@@ -5,10 +5,11 @@ import { useRef, useEffect } from 'react';
 import type { FormEvent, KeyboardEvent } from 'react';
 import { useAutocomplete } from '../hooks/useAutocomplete';
 import { SuggestionsDropdown } from './SuggestionsDropdown';
+import type { SuggestionListItem } from '../types/movie';
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
-  onSelectSuggestion: (imdbID: string) => void;
+  onSelectSuggestion: (suggestion: SuggestionListItem) => void;
   onQueryChange?: (query: string) => void;
   disabled?: boolean;
 }
@@ -22,7 +23,7 @@ export function SearchBar({
   const {
     query,
     setQuery,
-    suggestions,
+    visibleSuggestions,
     loading,
     error,
     clearSuggestions,
@@ -55,10 +56,8 @@ export function SearchBar({
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    const displayedSuggestions = suggestions.slice(0, 5);
-    
     // Only handle keyboard navigation if dropdown is visible
-    if (displayedSuggestions.length === 0) {
+    if (visibleSuggestions.length === 0) {
       return;
     }
 
@@ -66,22 +65,22 @@ export function SearchBar({
       case 'ArrowDown':
         e.preventDefault();
         setFocusedIndex((prev) => 
-          prev < displayedSuggestions.length - 1 ? prev + 1 : 0
+          prev < visibleSuggestions.length - 1 ? prev + 1 : 0
         );
         break;
       
       case 'ArrowUp':
         e.preventDefault();
         setFocusedIndex((prev) => 
-          prev > 0 ? prev - 1 : displayedSuggestions.length - 1
+          prev > 0 ? prev - 1 : visibleSuggestions.length - 1
         );
         break;
       
       case 'Enter':
-        if (focusedIndex >= 0 && focusedIndex < displayedSuggestions.length) {
+        if (focusedIndex >= 0 && focusedIndex < visibleSuggestions.length) {
           e.preventDefault();
-          const selectedMovie = displayedSuggestions[focusedIndex];
-          onSelectSuggestion(selectedMovie.imdbID);
+          const selectedMovie = visibleSuggestions[focusedIndex];
+          onSelectSuggestion(selectedMovie);
           clearSuggestions();
         }
         break;
@@ -105,7 +104,7 @@ export function SearchBar({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [clearSuggestions]);
 
-  const showDropdown = suggestions.length > 0 || loading || error;
+  const showDropdown = visibleSuggestions.length > 0 || loading || error;
 
   return (
     <div className="w-full max-w-2xl mx-auto px-4 md:px-8 lg:px-16" ref={dropdownRef}>
@@ -162,15 +161,15 @@ export function SearchBar({
         {/* Autocomplete dropdown */}
         {showDropdown && (
           <SuggestionsDropdown
-            suggestions={suggestions}
+            suggestions={visibleSuggestions}
             loading={loading}
             error={error}
-            onSelect={(imdbID) => {
-              onSelectSuggestion(imdbID);
+            onSelect={(suggestion) => {
+              onSelectSuggestion(suggestion);
               clearSuggestions();
             }}
-            onClose={clearSuggestions}
             focusedIndex={focusedIndex}
+            onHoverRow={(index) => setFocusedIndex(index)}
           />
         )}
       </form>

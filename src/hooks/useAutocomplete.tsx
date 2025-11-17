@@ -1,17 +1,18 @@
 // Custom hook for autocomplete functionality
 // Manages debounced search suggestions with loading and error states
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { searchMovieBroad } from '../utils/api';
-import type { SearchSuggestion } from '../types/movie';
+import type { SearchResult, SuggestionListItem } from '../types/movie';
 
 const DEBOUNCE_DELAY_MS = 300;
 const MIN_QUERY_LENGTH = 2;
+const MAX_VISIBLE = 5;
 
 interface UseAutocompleteReturn {
   query: string;
   setQuery: (query: string) => void;
-  suggestions: SearchSuggestion[];
+  visibleSuggestions: SuggestionListItem[];
   loading: boolean;
   error: string | null;
   clearSuggestions: () => void;
@@ -19,12 +20,44 @@ interface UseAutocompleteReturn {
   setFocusedIndex: React.Dispatch<React.SetStateAction<number>>;
 }
 
+const buildSnippet = (title: string, query: string): SuggestionListItem['snippet'] => {
+  const normalizedQuery = query.trim();
+  if (normalizedQuery.length < MIN_QUERY_LENGTH) {
+    return undefined;
+  }
+
+  const lowerTitle = title.toLowerCase();
+  const lowerQuery = normalizedQuery.toLowerCase();
+  const matchIndex = lowerTitle.indexOf(lowerQuery);
+
+  if (matchIndex === -1) {
+    return undefined;
+  }
+
+  return {
+    prefix: title.slice(0, matchIndex),
+    match: title.slice(matchIndex, matchIndex + normalizedQuery.length),
+    suffix: title.slice(matchIndex + normalizedQuery.length),
+  };
+};
+
 export function useAutocomplete(): UseAutocompleteReturn {
   const [query, setQuery] = useState<string>('');
-  const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
+  const [suggestions, setSuggestions] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [focusedIndex, setFocusedIndex] = useState<number>(-1);
+
+  const visibleSuggestions = useMemo<SuggestionListItem[]>(() => {
+    if (suggestions.length === 0) {
+      return [];
+    }
+
+    return suggestions.slice(0, MAX_VISIBLE).map((suggestion) => ({
+      ...suggestion,
+      snippet: buildSnippet(suggestion.Title, query),
+    }));
+  }, [suggestions, query]);
 
   // Debounced search effect
   useEffect(() => {
@@ -81,7 +114,7 @@ export function useAutocomplete(): UseAutocompleteReturn {
   return {
     query,
     setQuery,
-    suggestions,
+    visibleSuggestions,
     loading,
     error,
     clearSuggestions,

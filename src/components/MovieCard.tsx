@@ -2,17 +2,16 @@
 // Based on spec.md FR-010, FR-011, FR-012 and data-model.md
 
 import { useState } from 'react';
-import type { Movie } from '../types/movie';
+import type { MovieDetail } from '../types/movie';
 import { truncatePlot } from '../utils/helpers';
 
 interface MovieCardProps {
-  movie: Movie;
+  movie: MovieDetail;
 }
 
 export function MovieCard({ movie }: MovieCardProps) {
   const [imageError, setImageError] = useState(false);
   const hasPoster = movie.Poster && movie.Poster !== 'N/A' && !imageError;
-
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden 
                     transition-transform duration-200 hover:scale-105">
