@@ -1,8 +1,10 @@
 import { OMDB_TIMEOUT_MS } from './api';
+import type { MediaAsset } from '../types/movie';
 
 const POSTER_BASE_URL = 'http://img.omdbapi.com/';
 const API_KEY = import.meta.env.VITE_OMDB_API_KEY;
 const NA_VALUE = 'N/A';
+const POSTER_COLORS = ['#0f172a', '#1e1b4b', '#0f766e', '#7c2d12'];
 
 function normalizePosterUrl(poster?: string | null): string | null {
   const normalized = poster?.trim();
@@ -70,12 +72,35 @@ export async function fetchPosterUrl(imdbID?: string, fallbackPoster?: string | 
  */
 export function buildPosterCandidates(imdbID?: string, fallbackPoster?: string | null): string[] {
   const candidates: string[] = [];
-  if (imdbID) {
-    candidates.push(`${POSTER_BASE_URL}?apikey=${API_KEY}&i=${encodeURIComponent(imdbID)}`);
-  }
   const normalizedFallback = normalizePosterUrl(fallbackPoster);
   if (normalizedFallback) {
     candidates.push(normalizedFallback);
   }
+  if (imdbID) {
+    candidates.push(`${POSTER_BASE_URL}?apikey=${API_KEY}&i=${encodeURIComponent(imdbID)}`);
+  }
   return candidates;
+}
+
+export async function buildPosterMediaAsset(imdbID?: string, fallbackPoster?: string | null): Promise<MediaAsset> {
+  const fallbackUrl = normalizePosterUrl(fallbackPoster) ?? undefined;
+  const resolvedUrl = await fetchPosterUrl(imdbID, fallbackUrl);
+  const status: MediaAsset['status'] = resolvedUrl ? 'available' : fallbackUrl ? 'available' : 'placeholder';
+
+  return {
+    imdbID,
+    primaryUrl: resolvedUrl ?? undefined,
+    fallbackUrl,
+    dominantColor: pickDominantColor(imdbID),
+    status,
+  };
+}
+
+function pickDominantColor(imdbID?: string): string {
+  if (!imdbID) {
+    return POSTER_COLORS[0];
+  }
+  const codePoints = imdbID.split('').map((char) => char.charCodeAt(0));
+  const hash = codePoints.reduce((sum, code) => sum + code, 0);
+  return POSTER_COLORS[hash % POSTER_COLORS.length];
 }

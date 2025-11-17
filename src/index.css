@@ -1,3 +1,81 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+	--hero-overlay-start: rgba(5, 5, 5, 0.95);
+	--hero-overlay-mid: rgba(5, 5, 5, 0.65);
+	--hero-overlay-end: rgba(5, 5, 5, 0.15);
+}
+
+.hero-overlay {
+	position: relative;
+	isolation: isolate;
+}
+
+.hero-overlay::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(180deg, var(--hero-overlay-start) 0%, var(--hero-overlay-mid) 40%, var(--hero-overlay-end) 100%);
+	z-index: 0;
+}
+
+.hero-overlay > * {
+	position: relative;
+	z-index: 1;
+}
+
+.fade-clamp {
+	display: -webkit-box;
+	-webkit-line-clamp: 4;
+	line-clamp: 4;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	position: relative;
+}
+
+.fade-clamp::after {
+	content: '';
+	position: absolute;
+	inset: auto 0 0;
+	height: 40%;
+	background: linear-gradient(180deg, rgba(15, 23, 42, 0) 0%, rgba(15, 23, 42, 0.65) 100%);
+	pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.fade-clamp::after {
+		display: none;
+	}
+}
+
+body {
+	background-color: #f8fafc;
+	min-height: 100vh;
+}
+
+.detail-page {
+	position: relative;
+	scroll-padding-top: 4rem;
+}
+
+.detail-grid {
+	display: flex;
+	flex-direction: column;
+}
+
+.detail-poster {
+	position: static;
+	width: min(360px, 100%);
+}
+
+@media (min-width: 1024px) {
+	.detail-grid {
+		display: grid;
+	}
+
+	.detail-poster {
+		width: 100%;
+	}
+}

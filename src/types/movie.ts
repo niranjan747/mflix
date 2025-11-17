@@ -94,8 +94,12 @@ export type DetailViewStatus = "idle" | "loading" | "ready" | "error";
 export interface DetailViewState {
   status: DetailViewStatus;
   movie: MovieDetail | null;
+  heroSummary: HeroSummary | null;
+  tabs: DetailTabSection[];
+  posterPanel: PosterPanelState | null;
   errorMessage: string | null;
   selectedSuggestion: SearchResult | null;
+  activeTabId: DetailTabId;
 }
 
 /**
@@ -112,3 +116,69 @@ export interface SearchState {
  * Theme preference type
  */
 export type Theme = "light" | "dark";
+
+export interface HeroSummary {
+  title: string;
+  releaseYear: string;
+  runtime?: string;
+  genres?: string[];
+  plotSnippet: string;
+  primaryRating?: string;
+  backdropUrl?: string;
+  backdropFallbackColor: string;
+}
+
+export type MediaAssetStatus = "available" | "loading" | "placeholder";
+
+export interface MediaAsset {
+  imdbID?: string;
+  primaryUrl?: string;
+  fallbackUrl?: string;
+  dominantColor?: string;
+  status: MediaAssetStatus;
+}
+
+export type DetailTabId = "overview" | "info" | "ratings";
+
+export interface OverviewContent {
+  expandedPlot: string;
+  highlightBullets: string[];
+}
+
+export interface InfoContent {
+  releaseDate?: string;
+  runtime?: string;
+  castPreview: string[];
+  languages: string[];
+  awards?: string;
+}
+
+export interface RatingsPanelContent {
+  imdbRating?: string;
+  metacritic?: string;
+  rottenTomatoes?: string;
+  userScore?: string;
+  lastUpdated?: string;
+}
+
+export type DetailTabContent = OverviewContent | InfoContent | RatingsPanelContent;
+
+export interface DetailTabSection<T = DetailTabContent> {
+  id: DetailTabId;
+  label: string;
+  icon?: string;
+  content: T;
+  priority: number;
+}
+
+export interface PosterPanelState {
+  mediaAsset: MediaAsset;
+  isSticky: boolean;
+  scrollBounds: number;
+}
+
+export interface InteractionState {
+  activeTabId: DetailTabId;
+  isAnimating: boolean;
+  prefersReducedMotion: boolean;
+}

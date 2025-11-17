@@ -16,6 +16,9 @@ function App() {
     searchMovie,
     searchMovieDetail,
     clearDetail,
+    tabs,
+    activeTabId,
+    setActiveTab,
   } = useMovieSearch();
 
   const handleQueryLifecycle = (value: string) => {
@@ -36,7 +39,7 @@ function App() {
       <Navbar theme={theme} onToggleTheme={toggleTheme} />
 
       {/* Main Container */}
-      <div className="container mx-auto px-4 py-8">
+      <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8 detail-page">
         {/* Header */}
         <header className="text-center mb-12">
           <p className="text-gray-600 dark:text-gray-400 text-lg">
@@ -74,9 +77,20 @@ function App() {
           </div>
         )}
 
-        {detailState.status === 'ready' && detailState.movie && (
+        {detailState.status === 'ready'
+          && detailState.movie
+          && detailState.heroSummary
+          && detailState.posterPanel
+          && (
           <div className="mt-8">
-            <DetailPanel movie={detailState.movie} />
+            <DetailPanel
+              movie={detailState.movie}
+              heroSummary={detailState.heroSummary}
+              posterPanel={detailState.posterPanel}
+              tabs={tabs}
+              activeTabId={activeTabId}
+              onTabChange={setActiveTab}
+            />
           </div>
         )}
 
